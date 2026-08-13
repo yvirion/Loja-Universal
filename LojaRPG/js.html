@@ -1,0 +1,1634 @@
+<script>
+
+/* =====================================================
+   ESTADO DA APLICAÇÃO
+   ===================================================== */
+
+let app = {
+
+  token: null,
+
+  tipo: null,
+
+  jogadorId: null,
+
+  jogador: null,
+
+  produtos: [],
+
+  categoriaAtual: "TODOS"
+};
+
+
+/* =====================================================
+   LOGIN
+   ===================================================== */
+
+function entrar() {
+
+  const usuario =
+    document
+      .getElementById("usuario")
+      .value
+      .trim();
+
+
+  const senha =
+    document
+      .getElementById("senha")
+      .value
+      .trim();
+
+
+  mostrarLoginMensagem(
+    "Verificando os registros da guilda...",
+    "success"
+  );
+
+
+  google.script.run
+
+    .withSuccessHandler(function(res) {
+
+      if (!res.sucesso) {
+
+        mostrarLoginMensagem(
+          res.mensagem,
+          "error"
+        );
+
+        return;
+      }
+
+
+      app.token =
+        res.token;
+
+      app.tipo =
+        res.tipo;
+
+
+      if (res.tipo === "JOGADOR") {
+
+        app.jogadorId =
+          res.jogadorId;
+
+        app.jogador = {
+
+          nome: res.nome,
+
+          usuario: res.usuario
+
+        };
+      }
+
+
+      abrirAplicacao();
+
+    })
+
+    .withFailureHandler(function(error) {
+
+      mostrarLoginMensagem(
+        error.message,
+        "error"
+      );
+
+    })
+
+    .login(
+      usuario,
+      senha
+    );
+}
+
+
+/* =====================================================
+   ENTER NO LOGIN
+   ===================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    document
+      .getElementById("senha")
+      .addEventListener(
+        "keypress",
+        function(event) {
+
+          if (event.key === "Enter") {
+
+            entrar();
+          }
+
+        }
+      );
+
+  }
+);
+
+
+/* =====================================================
+   ABRIR APLICAÇÃO
+   ===================================================== */
+
+function abrirAplicacao() {
+
+  document
+    .getElementById("loginScreen")
+    .classList.remove("active");
+
+
+  document
+    .getElementById("appScreen")
+    .classList.add("active");
+
+
+  configurarInterface();
+
+
+  carregarLoja();
+}
+
+
+/* =====================================================
+   CONFIGURAR INTERFACE
+   ===================================================== */
+
+function configurarInterface() {
+
+  const mestreButtons =
+    document.querySelectorAll(
+      ".mestre-only"
+    );
+
+
+  if (app.tipo === "MESTRE") {
+
+    mestreButtons.forEach(
+      el => {
+        el.style.display = "block";
+      }
+    );
+
+
+    document
+      .getElementById("playerInfo")
+      .innerHTML =
+      "⚜ <strong>Mestre</strong>";
+
+  } else {
+
+    mestreButtons.forEach(
+      el => {
+        el.style.display = "none";
+      }
+    );
+
+
+    atualizarJogador();
+  }
+}
+
+
+/* =====================================================
+   ATUALIZAR DADOS DO JOGADOR
+   ===================================================== */
+
+function atualizarJogador() {
+
+  if (app.tipo !== "JOGADOR") {
+    return;
+  }
+
+
+  google.script.run
+
+    .withSuccessHandler(function(dados) {
+
+      app.jogador =
+        dados;
+
+
+      document
+        .getElementById("playerInfo")
+        .innerHTML =
+
+        `🧙 ${dados.nome}
+         &nbsp;|&nbsp;
+         🪙 ${dados.ouro} PO`;
+
+
+      renderizarInventario(
+        dados.inventario
+      );
+
+    })
+
+    .withFailureHandler(
+      tratarErro
+    )
+
+    .obterDadosJogador(
+      app.token
+    );
+}
+
+
+/* =====================================================
+   CARREGAR LOJA
+   ===================================================== */
+
+function carregarLoja() {
+
+  document
+    .getElementById("produtos")
+    .innerHTML =
+
+    `<div class="loading">
+      Consultando os mercadores...
+    </div>`;
+
+
+  google.script.run
+
+    .withSuccessHandler(function(produtos) {
+
+      app.produtos =
+        produtos;
+
+
+      renderizarCategorias();
+
+      renderizarProdutos();
+
+    })
+
+    .withFailureHandler(
+      tratarErro
+    )
+
+    .listarProdutos(
+      app.token
+    );
+}
+
+
+/* =====================================================
+   CATEGORIAS
+   ===================================================== */
+
+function renderizarCategorias() {
+
+  const container =
+    document.getElementById(
+      "categorias"
+    );
+
+
+  const categorias = [
+
+    "TODOS",
+
+    ...new Set(
+      app.produtos.map(
+        item => item.CATEGORIA
+      )
+    )
+
+  ];
+
+
+  container.innerHTML =
+    categorias
+      .map(
+        categoria => `
+
+          <button
+            class="category-btn
+              ${categoria === app.categoriaAtual
+                ? "active"
+                : ""}"
+            onclick="filtrarCategoria('${categoria}')"
+          >
+
+            ${categoria === "TODOS"
+              ? "🏰 Todos"
+              : "⚔ " + categoria}
+
+          </button>
+
+        `
+      )
+      .join("");
+}
+
+
+/* =====================================================
+   FILTRAR
+   ===================================================== */
+
+function filtrarCategoria(
+  categoria
+) {
+
+  app.categoriaAtual =
+    categoria;
+
+
+  renderizarCategorias();
+
+  renderizarProdutos();
+}
+
+
+/* =====================================================
+   PRODUTOS
+   ===================================================== */
+
+function renderizarProdutos() {
+
+  const container =
+    document.getElementById(
+      "produtos"
+    );
+
+
+  let produtos =
+    app.produtos;
+
+
+  if (
+    app.categoriaAtual !==
+    "TODOS"
+  ) {
+
+    produtos =
+      produtos.filter(
+        item =>
+          item.CATEGORIA ===
+          app.categoriaAtual
+      );
+  }
+
+
+  if (!produtos.length) {
+
+    container.innerHTML =
+
+      `<div class="loading">
+        Nenhuma mercadoria encontrada.
+      </div>`;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    produtos
+      .map(
+        item =>
+          criarCardProduto(item)
+      )
+      .join("");
+}
+
+
+/* =====================================================
+   CARD DO PRODUTO
+   ===================================================== */
+
+function criarCardProduto(item) {
+
+  const estoque =
+    Number(item.ESTOQUE) || 0;
+
+
+  const imagem =
+    item.IMAGEM;
+
+
+  let visual =
+    "⚔";
+
+
+  if (
+    item.CATEGORIA ===
+    "Poções"
+  ) {
+
+    visual = "🧪";
+
+  } else if (
+    item.CATEGORIA ===
+    "Armaduras"
+  ) {
+
+    visual = "🛡";
+
+  } else if (
+    item.CATEGORIA ===
+    "Magia"
+  ) {
+
+    visual = "📜";
+
+  } else if (
+    item.CATEGORIA ===
+    "Utilidades"
+  ) {
+
+    visual = "🧰";
+  }
+
+
+  if (imagem) {
+
+    visual =
+      `<img
+        src="${imagem}"
+        style="
+          max-width:100%;
+          max-height:150px;
+          object-fit:contain;
+        "
+      >`;
+  }
+
+
+  return `
+
+    <article class="product-card">
+
+      <div class="product-image">
+
+        ${visual}
+
+      </div>
+
+
+      <div class="product-content">
+
+        <div class="product-category">
+
+          ${item.CATEGORIA}
+
+        </div>
+
+
+        <div class="product-name">
+
+          ${item.NOME}
+
+        </div>
+
+
+        <div class="product-description">
+
+          ${item.DESCRICAO || "Mercadoria do reino."}
+
+        </div>
+
+
+        <div class="product-footer">
+
+          <div>
+
+            <div class="price">
+
+              🪙 ${item.PRECO} PO
+
+            </div>
+
+
+            <div class="stock">
+
+              Estoque:
+              ${estoque}
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <button
+
+          class="buy-btn"
+
+          ${estoque <= 0
+            ? "disabled"
+            : ""}
+
+          onclick="comprar(
+            '${item.ID}',
+            '${escaparTexto(item.NOME)}'
+          )"
+
+        >
+
+          ${estoque <= 0
+            ? "ESGOTADO"
+            : "⚔ COMPRAR"}
+
+        </button>
+
+      </div>
+
+    </article>
+
+  `;
+}
+
+
+/* =====================================================
+   ESCAPAR TEXTO
+   ===================================================== */
+
+function escaparTexto(texto) {
+
+  return String(texto)
+    .replace(/'/g, "\\'");
+}
+
+
+/* =====================================================
+   COMPRAR
+   ===================================================== */
+
+function comprar(
+  itemId,
+  itemNome
+) {
+
+  if (app.tipo !== "JOGADOR") {
+
+    mostrarModal(
+      "Apenas jogadores podem realizar compras."
+    );
+
+    return;
+  }
+
+
+  mostrarModal(`
+
+    <h2>
+      Comprar ${itemNome}
+    </h2>
+
+    <p>
+      Quantas unidades deseja comprar?
+    </p>
+
+
+    <input
+      id="quantidadeCompra"
+      type="number"
+      min="1"
+      value="1"
+      style="
+        width:100%;
+        padding:12px;
+        margin:15px 0;
+      "
+    >
+
+
+    <button
+      class="btn-gold"
+      onclick="confirmarCompra('${itemId}')"
+    >
+
+      ⚔ CONFIRMAR COMPRA
+
+    </button>
+
+  `);
+}
+
+
+/* =====================================================
+   CONFIRMAR COMPRA
+   ===================================================== */
+
+function confirmarCompra(
+  itemId
+) {
+
+  const quantidade =
+    Number(
+      document
+        .getElementById(
+          "quantidadeCompra"
+        )
+        .value
+    );
+
+
+  fecharModal();
+
+
+  mostrarModal(`
+
+    <h2>
+      O mercador está verificando...
+    </h2>
+
+    <p>
+      Consultando estoque e bolsa de moedas.
+    </p>
+
+  `);
+
+
+  google.script.run
+
+    .withSuccessHandler(function(res) {
+
+      mostrarModal(`
+
+        <h2>
+          ⚔ Compra realizada!
+        </h2>
+
+        <p>
+          Você adquiriu
+          <strong>
+            ${res.quantidade}x
+            ${res.item}
+          </strong>.
+        </p>
+
+        <p style="margin-top:15px">
+
+          Valor:
+          <strong>
+            ${res.valor} PO
+          </strong>
+
+        </p>
+
+        <p style="margin-top:10px">
+
+          Saldo restante:
+          <strong>
+            ${res.saldo} PO
+          </strong>
+
+        </p>
+
+
+        <button
+          class="btn-gold"
+          onclick="fecharModal(); carregarLoja(); atualizarJogador();"
+        >
+
+          CONTINUAR
+
+        </button>
+
+      `);
+
+    })
+
+    .withFailureHandler(function(error) {
+
+      mostrarModal(`
+
+        <h2>
+          ⚠ Compra recusada
+        </h2>
+
+        <p>
+          ${error.message}
+        </p>
+
+
+        <button
+          class="btn-gold"
+          onclick="fecharModal()"
+        >
+
+          VOLTAR
+
+        </button>
+
+      `);
+
+    })
+
+    .comprarItem(
+      app.token,
+      itemId,
+      quantidade
+    );
+}
+
+
+/* =====================================================
+   INVENTÁRIO
+   ===================================================== */
+
+function renderizarInventario(
+  inventario
+) {
+
+  const container =
+    document.getElementById(
+      "inventario"
+    );
+
+
+  if (!inventario ||
+      !inventario.length) {
+
+    container.innerHTML = `
+
+      <div class="loading">
+
+        🎒
+
+        <br><br>
+
+        Sua mochila está vazia.
+
+        <br>
+
+        Talvez seja hora de visitar o mercador.
+
+      </div>
+
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    inventario
+      .map(
+        item => `
+
+          <div class="inventory-card">
+
+            <div class="inventory-icon">
+
+              ⚔
+
+            </div>
+
+            <h3>
+
+              ${item.itemNome}
+
+            </h3>
+
+            <span class="inventory-quantity">
+
+              x${item.quantidade}
+
+            </span>
+
+          </div>
+
+        `
+      )
+      .join("");
+}
+
+
+/* =====================================================
+   NAVEGAÇÃO
+   ===================================================== */
+
+function mostrarPagina(
+  pagina
+) {
+
+  document
+    .querySelectorAll(".page")
+    .forEach(
+      page =>
+        page.classList.remove(
+          "active"
+        )
+    );
+
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(
+      btn =>
+        btn.classList.remove(
+          "active"
+        )
+    );
+
+
+  if (pagina === "loja") {
+
+    document
+      .getElementById(
+        "paginaLoja"
+      )
+      .classList.add("active");
+
+
+    document
+      .getElementById(
+        "navLoja"
+      )
+      .classList.add("active");
+  }
+
+
+  if (
+    pagina ===
+    "inventario"
+  ) {
+
+    document
+      .getElementById(
+        "paginaInventario"
+      )
+      .classList.add("active");
+
+
+    document
+      .getElementById(
+        "navInventario"
+      )
+      .classList.add("active");
+
+
+    atualizarJogador();
+  }
+
+
+  if (
+    pagina ===
+    "mestre"
+  ) {
+
+    if (
+      app.tipo !==
+      "MESTRE"
+    ) {
+
+      return;
+    }
+
+
+    document
+      .getElementById(
+        "paginaMestre"
+      )
+      .classList.add("active");
+
+
+    document
+      .getElementById(
+        "navMestre"
+      )
+      .classList.add("active");
+
+
+    carregarPainelMestre();
+  }
+}
+
+
+/* =====================================================
+   PAINEL MESTRE
+   ===================================================== */
+
+function carregarPainelMestre() {
+
+  carregarJogadores();
+
+  carregarTransacoes();
+
+  carregarEstoqueMestre();
+}
+
+
+/* =====================================================
+   JOGADORES
+   ===================================================== */
+
+function carregarJogadores() {
+
+  google.script.run
+
+    .withSuccessHandler(function(jogadores) {
+
+      const container =
+        document.getElementById(
+          "jogadores"
+        );
+
+
+      container.innerHTML =
+        jogadores
+          .map(
+            jogador => `
+
+              <div class="player-card">
+
+                <h4>
+
+                  🧙 ${jogador.nome}
+
+                </h4>
+
+
+                <div class="player-balance">
+
+                  🪙
+                  ${jogador.ouro}
+                  PO
+
+                </div>
+
+
+                <div>
+
+                  Status:
+                  ${jogador.status}
+
+                </div>
+
+
+                <div class="admin-actions">
+
+                  <button
+                    onclick="alterarMoedas(
+                      '${jogador.id}',
+                      '${escaparTexto(jogador.nome)}',
+                      10
+                    )"
+                  >
+                    +10 PO
+                  </button>
+
+
+                  <button
+                    onclick="alterarMoedas(
+                      '${jogador.id}',
+                      '${escaparTexto(jogador.nome)}',
+                      50
+                    )"
+                  >
+                    +50 PO
+                  </button>
+
+
+                  <button
+                    onclick="alterarMoedas(
+                      '${jogador.id}',
+                      '${escaparTexto(jogador.nome)}',
+                      -10
+                    )"
+                  >
+                    -10 PO
+                  </button>
+
+
+                  <button
+                    onclick="alterarMoedas(
+                      '${jogador.id}',
+                      '${escaparTexto(jogador.nome)}',
+                      -50
+                    )"
+                  >
+                    -50 PO
+                  </button>
+
+
+                  <button
+                    onclick="valorPersonalizado(
+                      '${jogador.id}',
+                      '${escaparTexto(jogador.nome)}'
+                    )"
+                  >
+                    Valor
+                  </button>
+
+                </div>
+
+              </div>
+
+            `
+          )
+          .join("");
+
+    })
+
+    .withFailureHandler(
+      tratarErro
+    )
+
+    .listarJogadores(
+      app.token
+    );
+}
+
+
+/* =====================================================
+   ALTERAR MOEDAS
+   ===================================================== */
+
+function alterarMoedas(
+  jogadorId,
+  jogadorNome,
+  valor
+) {
+
+  google.script.run
+
+    .withSuccessHandler(function(res) {
+
+      mostrarModal(`
+
+        <h2>
+          🪙 Bolsa atualizada
+        </h2>
+
+        <p>
+
+          Jogador:
+          <strong>
+            ${res.jogador}
+          </strong>
+
+        </p>
+
+
+        <p style="margin-top:15px">
+
+          Novo saldo:
+          <strong>
+            ${res.saldo} PO
+          </strong>
+
+        </p>
+
+
+        <button
+          class="btn-gold"
+          onclick="
+            fecharModal();
+            carregarJogadores();
+            carregarTransacoes();
+          "
+        >
+
+          CONTINUAR
+
+        </button>
+
+      `);
+
+    })
+
+    .withFailureHandler(
+      tratarErro
+    )
+
+    .alterarOuro(
+      app.token,
+      jogadorId,
+      valor
+    );
+}
+
+
+/* =====================================================
+   VALOR PERSONALIZADO
+   ===================================================== */
+
+function valorPersonalizado(
+  jogadorId,
+  jogadorNome
+) {
+
+  mostrarModal(`
+
+    <h2>
+      🪙 Bolsa de ${jogadorNome}
+    </h2>
+
+
+    <p>
+      Digite o valor.
+      Use negativo para retirar.
+    </p>
+
+
+    <input
+      id="valorMoedas"
+      type="number"
+      placeholder="Ex.: 100 ou -50"
+      style="
+        width:100%;
+        padding:12px;
+        margin:15px 0;
+      "
+    >
+
+
+    <button
+      class="btn-gold"
+      onclick="
+        confirmarValorPersonalizado(
+          '${jogadorId}'
+        )
+      "
+    >
+
+      CONFIRMAR
+
+    </button>
+
+  `);
+}
+
+
+/* =====================================================
+   CONFIRMAR VALOR
+   ===================================================== */
+
+function confirmarValorPersonalizado(
+  jogadorId
+) {
+
+  const valor =
+    Number(
+      document
+        .getElementById(
+          "valorMoedas"
+        )
+        .value
+    );
+
+
+  fecharModal();
+
+
+  alterarMoedas(
+    jogadorId,
+    "",
+    valor
+  );
+}
+
+
+/* =====================================================
+   ESTOQUE DO MESTRE
+   ===================================================== */
+
+function carregarEstoqueMestre() {
+
+  google.script.run
+
+    .withSuccessHandler(function(produtos) {
+
+      const container =
+        document.getElementById(
+          "estoqueMestre"
+        );
+
+
+      let html = `
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Item</th>
+
+              <th>Categoria</th>
+
+              <th>Preço</th>
+
+              <th>Estoque</th>
+
+              <th>Ações</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+      `;
+
+
+      produtos.forEach(item => {
+
+        html += `
+
+          <tr>
+
+            <td>
+              ${item.NOME}
+            </td>
+
+            <td>
+              ${item.CATEGORIA}
+            </td>
+
+            <td>
+              ${item.PRECO} PO
+            </td>
+
+            <td>
+              ${item.ESTOQUE}
+            </td>
+
+            <td>
+
+              <button
+                onclick="
+                  alterarEstoque(
+                    '${item.ID}',
+                    1
+                  )
+                "
+              >
+                +1
+              </button>
+
+
+              <button
+                onclick="
+                  alterarEstoque(
+                    '${item.ID}',
+                    10
+                  )
+                "
+              >
+                +10
+              </button>
+
+
+              <button
+                onclick="
+                  alterarEstoque(
+                    '${item.ID}',
+                    -1
+                  )
+                "
+              >
+                -1
+              </button>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      });
+
+
+      html += `
+
+          </tbody>
+
+        </table>
+
+      `;
+
+
+      container.innerHTML =
+        html;
+
+    })
+
+    .withFailureHandler(
+      tratarErro
+    )
+
+    .listarProdutos(
+      app.token
+    );
+}
+
+
+/* =====================================================
+   ALTERAR ESTOQUE
+   ===================================================== */
+
+function alterarEstoque(
+  itemId,
+  quantidade
+) {
+
+  google.script.run
+
+    .withSuccessHandler(function() {
+
+      carregarEstoqueMestre();
+
+      carregarLoja();
+
+    })
+
+    .withFailureHandler(
+      tratarErro
+    )
+
+    .alterarEstoque(
+      app.token,
+      itemId,
+      quantidade
+    );
+}
+
+
+/* =====================================================
+   TRANSAÇÕES
+   ===================================================== */
+
+function carregarTransacoes() {
+
+  google.script.run
+
+    .withSuccessHandler(function(transacoes) {
+
+      const container =
+        document.getElementById(
+          "transacoes"
+        );
+
+
+      if (!transacoes.length) {
+
+        container.innerHTML =
+          `<p>
+            Nenhuma transação registrada.
+          </p>`;
+
+        return;
+      }
+
+
+      let html = `
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Data</th>
+
+              <th>Tipo</th>
+
+              <th>Jogador</th>
+
+              <th>Item</th>
+
+              <th>Qtd.</th>
+
+              <th>Valor</th>
+
+              <th>Saldo</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+      `;
+
+
+      transacoes.forEach(t => {
+
+        html += `
+
+          <tr>
+
+            <td>
+              ${t.data}
+            </td>
+
+            <td>
+              ${t.tipo}
+            </td>
+
+            <td>
+              ${t.jogador}
+            </td>
+
+            <td>
+              ${t.item || "-"}
+            </td>
+
+            <td>
+              ${t.quantidade || "-"}
+            </td>
+
+            <td>
+              ${t.valor}
+            </td>
+
+            <td>
+              ${t.saldo}
+            </td>
+
+          </tr>
+
+        `;
+
+      });
+
+
+      html += `
+
+          </tbody>
+
+        </table>
+
+      `;
+
+
+      container.innerHTML =
+        html;
+
+    })
+
+    .withFailureHandler(
+      tratarErro
+    )
+
+    .listarTransacoes(
+      app.token
+    );
+}
+
+
+/* =====================================================
+   MODAL
+   ===================================================== */
+
+function mostrarModal(
+  html
+) {
+
+  document
+    .getElementById(
+      "modalBody"
+    )
+    .innerHTML =
+    html;
+
+
+  document
+    .getElementById(
+      "modal"
+    )
+    .classList.remove(
+      "hidden"
+    );
+}
+
+
+function fecharModal() {
+
+  document
+    .getElementById(
+      "modal"
+    )
+    .classList.add(
+      "hidden"
+    );
+}
+
+
+/* =====================================================
+   MENSAGEM DE LOGIN
+   ===================================================== */
+
+function mostrarLoginMensagem(
+  mensagem,
+  tipo
+) {
+
+  const element =
+    document.getElementById(
+      "loginMessage"
+    );
+
+
+  element.innerText =
+    mensagem;
+
+
+  element.className =
+    "message " + tipo;
+}
+
+
+/* =====================================================
+   ERRO
+   ===================================================== */
+
+function tratarErro(
+  error
+) {
+
+  mostrarModal(`
+
+    <h2>
+      ⚠ Algo aconteceu
+    </h2>
+
+    <p>
+      ${error.message}
+    </p>
+
+
+    <button
+      class="btn-gold"
+      onclick="fecharModal()"
+    >
+
+      FECHAR
+
+    </button>
+
+  `);
+}
+
+
+/* =====================================================
+   SAIR
+   ===================================================== */
+
+function sair() {
+
+  if (app.token) {
+
+    google.script.run
+      .logout(app.token);
+  }
+
+
+  app = {
+
+    token: null,
+
+    tipo: null,
+
+    jogadorId: null,
+
+    jogador: null,
+
+    produtos: [],
+
+    categoriaAtual: "TODOS"
+
+  };
+
+
+  document
+    .getElementById(
+      "appScreen"
+    )
+    .classList.remove(
+      "active"
+    );
+
+
+  document
+    .getElementById(
+      "loginScreen"
+    )
+    .classList.add(
+      "active"
+    );
+
+
+  document
+    .getElementById(
+      "usuario"
+    )
+    .value = "";
+
+
+  document
+    .getElementById(
+      "senha"
+    )
+    .value = "";
+}
+
+</script>
