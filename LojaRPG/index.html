@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>A Loja do Dragão Dourado</title>
+
+
+  <!-- Fontes -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=MedievalSharp&family=Libre+Baskerville:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+
+
+  <?!= include("CSS"); ?>
+
+</head>
+
+
+<body>
+
+
+<!-- ===================================================
+     TELA DE LOGIN
+     =================================================== -->
+
+<section
+  id="loginScreen"
+  class="screen active"
+>
+
+  <div class="login-container">
+
+    <div class="crest">
+      ⚔
+    </div>
+
+    <h1>
+      A Loja do Dragão Dourado
+    </h1>
+
+    <p class="subtitle">
+      Tudo aquilo que um aventureiro precisa.
+    </p>
+
+
+    <div class="parchment login-box">
+
+      <h2>
+        Entrada da Guilda
+      </h2>
+
+
+      <label>
+        Usuário
+      </label>
+
+      <input
+        id="usuario"
+        type="text"
+        placeholder="Digite seu nome"
+      >
+
+
+      <label>
+        Senha
+      </label>
+
+      <input
+        id="senha"
+        type="password"
+        placeholder="Digite sua senha"
+      >
+
+
+      <button
+        class="btn-gold"
+        onclick="entrar()"
+      >
+        ⚔ ENTRAR NA LOJA
+      </button>
+
+
+      <div
+        id="loginMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <p class="login-hint">
+      Somente aventureiros registrados na guilda podem entrar.
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<!-- ===================================================
+     APLICAÇÃO
+     =================================================== -->
+
+<section
+  id="appScreen"
+  class="screen"
+>
+
+  <!-- HEADER -->
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <div class="brand-icon">
+        🐉
+      </div>
+
+      <div>
+
+        <h1>
+          A Loja do Dragão Dourado
+        </h1>
+
+        <span>
+          Mercado dos aventureiros
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="player-area">
+
+      <div
+        id="playerInfo"
+        class="player-info"
+      ></div>
+
+
+      <button
+        class="btn-logout"
+        onclick="sair()"
+      >
+        Sair
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- NAVEGAÇÃO -->
+
+  <nav class="navigation">
+
+    <button
+      onclick="mostrarPagina('loja')"
+      class="nav-btn active"
+      id="navLoja"
+    >
+      🏪 Loja
+    </button>
+
+
+    <button
+      onclick="mostrarPagina('inventario')"
+      class="nav-btn"
+      id="navInventario"
+    >
+      🎒 Inventário
+    </button>
+
+
+    <button
+      onclick="mostrarPagina('mestre')"
+      class="nav-btn mestre-only"
+      id="navMestre"
+    >
+      ⚜ Mestre
+    </button>
+
+  </nav>
+
+
+
+  <!-- =================================================
+       LOJA
+       ================================================= -->
+
+  <main
+    id="paginaLoja"
+    class="page active"
+  >
+
+    <div class="page-title">
+
+      <div>
+
+        <span class="eyebrow">
+          MERCADO REAL
+        </span>
+
+        <h2>
+          Mercadorias
+        </h2>
+
+        <p>
+          Escolha sabiamente. O ouro não cresce em árvores.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- CATEGORIAS -->
+
+    <div
+      id="categorias"
+      class="categories"
+    ></div>
+
+
+    <!-- PRODUTOS -->
+
+    <div
+      id="produtos"
+      class="products-grid"
+    >
+
+      <div class="loading">
+        Consultando os mercadores...
+      </div>
+
+    </div>
+
+  </main>
+
+
+
+  <!-- =================================================
+       INVENTÁRIO
+       ================================================= -->
+
+  <main
+    id="paginaInventario"
+    class="page"
+  >
+
+    <div class="page-title">
+
+      <div>
+
+        <span class="eyebrow">
+          PERTENCES DO AVENTUREIRO
+        </span>
+
+        <h2>
+          Minha Mochila
+        </h2>
+
+        <p>
+          Todos os itens adquiridos durante a campanha.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="inventario"
+      class="inventory-grid"
+    ></div>
+
+  </main>
+
+
+
+  <!-- =================================================
+       PAINEL DO MESTRE
+       ================================================= -->
+
+  <main
+    id="paginaMestre"
+    class="page"
+  >
+
+    <div class="page-title">
+
+      <div>
+
+        <span class="eyebrow">
+          SALÃO DO MESTRE
+        </span>
+
+        <h2>
+          Administração da Campanha
+        </h2>
+
+        <p>
+          O destino dos aventureiros está em suas mãos.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- JOGADORES -->
+
+    <section class="admin-section">
+
+      <h3>
+        👥 Jogadores
+      </h3>
+
+
+      <div
+        id="jogadores"
+        class="players-grid"
+      ></div>
+
+    </section>
+
+
+    <!-- ESTOQUE -->
+
+    <section class="admin-section">
+
+      <h3>
+        📦 Estoque
+      </h3>
+
+
+      <div
+        id="estoqueMestre"
+        class="admin-table-container"
+      ></div>
+
+    </section>
+
+
+    <!-- TRANSAÇÕES -->
+
+    <section class="admin-section">
+
+      <h3>
+        📜 Livro de Transações
+      </h3>
+
+
+      <div
+        id="transacoes"
+        class="admin-table-container"
+      ></div>
+
+    </section>
+
+  </main>
+
+
+
+  <!-- =================================================
+       MODAL
+       ================================================= -->
+
+  <div
+    id="modal"
+    class="modal hidden"
+  >
+
+    <div class="modal-content parchment">
+
+      <button
+        class="modal-close"
+        onclick="fecharModal()"
+      >
+        ×
+      </button>
+
+
+      <div id="modalBody"></div>
+
+    </div>
+
+  </div>
+
+
+</section>
+
+
+<?!= include("JS"); ?>
+
+
+</body>
+
+</html>
