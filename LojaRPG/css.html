@@ -1,0 +1,1359 @@
+<style>
+
+/* =====================================================
+   VARIÁVEIS
+   ===================================================== */
+
+:root {
+
+  --bg-dark: #120d09;
+
+  --bg-panel: #211710;
+
+  --wood-dark: #2d1c11;
+
+  --wood: #51321d;
+
+  --wood-light: #76502c;
+
+  --gold: #c79b4a;
+
+  --gold-light: #e4c477;
+
+  --parchment: #e7d3a6;
+
+  --parchment-dark: #b79b67;
+
+  --ink: #24170d;
+
+  --red: #8e2924;
+
+  --red-dark: #5d1715;
+
+  --green: #4c6e45;
+
+  --white: #f5ead1;
+
+  --shadow:
+    0 15px 40px rgba(0,0,0,.55);
+}
+
+
+/* =====================================================
+   RESET
+   ===================================================== */
+
+* {
+
+  box-sizing: border-box;
+
+  margin: 0;
+
+  padding: 0;
+}
+
+
+body {
+
+  min-height: 100vh;
+
+  background:
+
+    radial-gradient(
+      circle at center,
+      rgba(116,77,40,.25),
+      transparent 60%
+    ),
+
+    linear-gradient(
+      135deg,
+      #100b08,
+      #24170e
+    );
+
+  color: var(--white);
+
+  font-family:
+    "Libre Baskerville",
+    Georgia,
+    serif;
+}
+
+
+/* =====================================================
+   TIPOGRAFIA
+   ===================================================== */
+
+h1,
+h2,
+h3,
+button {
+
+  font-family:
+    "Cinzel",
+    Georgia,
+    serif;
+}
+
+
+h1,
+h2,
+h3 {
+
+  color: var(--gold-light);
+}
+
+
+/* =====================================================
+   TELAS
+   ===================================================== */
+
+.screen {
+
+  display: none;
+
+  min-height: 100vh;
+}
+
+
+.screen.active {
+
+  display: block;
+}
+
+
+/* =====================================================
+   LOGIN
+   ===================================================== */
+
+#loginScreen {
+
+  display: none;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 30px;
+}
+
+
+#loginScreen.active {
+
+  display: flex;
+}
+
+
+.login-container {
+
+  width: 100%;
+
+  max-width: 520px;
+
+  text-align: center;
+}
+
+
+.crest {
+
+  width: 100px;
+
+  height: 100px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 55px;
+
+  border:
+
+    3px solid var(--gold);
+
+  background:
+    linear-gradient(
+      145deg,
+      #56351c,
+      #1d1009
+    );
+
+  clip-path:
+    polygon(
+      50% 0,
+      90% 18%,
+      90% 65%,
+      50% 100%,
+      10% 65%,
+      10% 18%
+    );
+
+  box-shadow: var(--shadow);
+}
+
+
+.login-container h1 {
+
+  font-family:
+    "MedievalSharp",
+    cursive;
+
+  font-size: 38px;
+
+  color: var(--gold-light);
+}
+
+
+.subtitle {
+
+  margin: 12px 0 30px;
+
+  color: #cbb991;
+
+  font-style: italic;
+}
+
+
+/* =====================================================
+   PERGAMINO
+   ===================================================== */
+
+.parchment {
+
+  color: var(--ink);
+
+  background:
+
+    linear-gradient(
+      rgba(255,255,255,.08),
+      rgba(0,0,0,.05)
+    ),
+
+    var(--parchment);
+
+  border:
+
+    4px solid #765a31;
+
+  box-shadow: var(--shadow);
+
+  position: relative;
+}
+
+
+.parchment::before {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 8px;
+
+  border:
+
+    1px solid rgba(65,42,20,.35);
+
+  pointer-events: none;
+}
+
+
+.login-box {
+
+  padding: 40px;
+
+  margin-top: 20px;
+}
+
+
+.login-box h2 {
+
+  color: #4a2c16;
+
+  margin-bottom: 30px;
+}
+
+
+.login-box label {
+
+  display: block;
+
+  text-align: left;
+
+  margin:
+    18px 0 7px;
+
+  font-weight: bold;
+
+  color: #50321b;
+}
+
+
+.login-box input {
+
+  width: 100%;
+
+  padding: 14px;
+
+  border:
+
+    2px solid #9b7b48;
+
+  background: #f0dfb7;
+
+  color: var(--ink);
+
+  font-size: 16px;
+
+  outline: none;
+}
+
+
+.login-box input:focus {
+
+  border-color: var(--gold);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(199,155,74,.2);
+}
+
+
+/* =====================================================
+   BOTÕES
+   ===================================================== */
+
+button {
+
+  cursor: pointer;
+
+  border: none;
+
+  transition:
+    .2s ease;
+}
+
+
+.btn-gold {
+
+  width: 100%;
+
+  margin-top: 30px;
+
+  padding: 16px;
+
+  color: #24170d;
+
+  font-weight: bold;
+
+  background:
+
+    linear-gradient(
+      #e3c16f,
+      #a67b2f
+    );
+
+  border:
+
+    2px solid #74531e;
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.4),
+    0 5px 10px rgba(0,0,0,.3);
+}
+
+
+.btn-gold:hover {
+
+  transform:
+    translateY(-2px);
+
+  filter:
+    brightness(1.1);
+}
+
+
+.login-hint {
+
+  margin-top: 20px;
+
+  font-size: 12px;
+
+  color: #9f8969;
+}
+
+
+/* =====================================================
+   TOPBAR
+   ===================================================== */
+
+.topbar {
+
+  min-height: 90px;
+
+  padding:
+    15px 30px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 20px;
+
+  background:
+
+    linear-gradient(
+      180deg,
+      #352116,
+      #1c110b
+    );
+
+  border-bottom:
+    3px solid var(--gold);
+
+  box-shadow:
+    0 5px 20px rgba(0,0,0,.5);
+}
+
+
+.brand {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+
+.brand-icon {
+
+  width: 58px;
+
+  height: 58px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 30px;
+
+  background:
+    #3d2717;
+
+  border:
+    2px solid var(--gold);
+
+  border-radius: 50%;
+}
+
+
+.brand h1 {
+
+  font-size: 21px;
+
+  font-family:
+    "MedievalSharp",
+    cursive;
+}
+
+
+.brand span {
+
+  color: #a99572;
+
+  font-size: 12px;
+}
+
+
+.player-area {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+
+.player-info {
+
+  padding:
+    10px 15px;
+
+  border:
+    1px solid #725229;
+
+  background:
+    rgba(0,0,0,.25);
+
+  color: var(--gold-light);
+}
+
+
+.btn-logout {
+
+  padding:
+    10px 15px;
+
+  color: #f5d7c9;
+
+  background:
+    var(--red-dark);
+
+  border:
+    1px solid #a6463f;
+}
+
+
+/* =====================================================
+   NAVEGAÇÃO
+   ===================================================== */
+
+.navigation {
+
+  display: flex;
+
+  gap: 5px;
+
+  padding:
+    10px 30px;
+
+  background:
+    #17100b;
+
+  border-bottom:
+    1px solid #5d4125;
+}
+
+
+.nav-btn {
+
+  padding:
+    12px 20px;
+
+  color: #bca67f;
+
+  background:
+    transparent;
+
+  border-bottom:
+    2px solid transparent;
+}
+
+
+.nav-btn:hover,
+.nav-btn.active {
+
+  color:
+    var(--gold-light);
+
+  border-bottom-color:
+    var(--gold);
+}
+
+
+/* =====================================================
+   PÁGINAS
+   ===================================================== */
+
+.page {
+
+  display: none;
+
+  max-width: 1400px;
+
+  margin: auto;
+
+  padding:
+    40px 30px;
+}
+
+
+.page.active {
+
+  display: block;
+}
+
+
+.page-title {
+
+  margin-bottom: 30px;
+
+  border-bottom:
+    1px solid #684a2a;
+
+  padding-bottom: 20px;
+}
+
+
+.eyebrow {
+
+  color:
+    var(--gold);
+
+  font-size:
+    11px;
+
+  letter-spacing:
+    3px;
+}
+
+
+.page-title h2 {
+
+  margin:
+    8px 0;
+
+  font-size:
+    34px;
+}
+
+
+.page-title p {
+
+  color:
+    #aa9878;
+
+  font-size:
+    14px;
+}
+
+
+/* =====================================================
+   CATEGORIAS
+   ===================================================== */
+
+.categories {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-bottom: 30px;
+}
+
+
+.category-btn {
+
+  padding:
+    10px 18px;
+
+  color:
+    #d9c39b;
+
+  background:
+    var(--wood-dark);
+
+  border:
+    1px solid #694827;
+}
+
+
+.category-btn:hover,
+.category-btn.active {
+
+  background:
+    var(--wood);
+
+  color:
+    var(--gold-light);
+
+  border-color:
+    var(--gold);
+}
+
+
+/* =====================================================
+   PRODUTOS
+   ===================================================== */
+
+.products-grid {
+
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(250px, 1fr)
+    );
+
+  gap:
+    25px;
+}
+
+
+.product-card {
+
+  position:
+    relative;
+
+  overflow:
+    hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      #382317,
+      #1e130c
+    );
+
+  border:
+    2px solid #684627;
+
+  box-shadow:
+    0 8px 20px rgba(0,0,0,.35);
+
+  transition:
+    .25s ease;
+}
+
+
+.product-card:hover {
+
+  transform:
+    translateY(-5px);
+
+  border-color:
+    var(--gold);
+
+  box-shadow:
+    0 12px 30px
+    rgba(0,0,0,.55);
+}
+
+
+.product-image {
+
+  height: 180px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 70px;
+
+  background:
+    radial-gradient(
+      circle,
+      #624328,
+      #24160d
+    );
+
+  border-bottom:
+    1px solid #76502e;
+}
+
+
+.product-content {
+
+  padding: 20px;
+}
+
+
+.product-category {
+
+  color:
+    var(--gold);
+
+  font-size:
+    10px;
+
+  letter-spacing:
+    2px;
+
+  text-transform:
+    uppercase;
+}
+
+
+.product-name {
+
+  margin:
+    8px 0;
+
+  font-family:
+    "Cinzel";
+
+  font-size:
+    20px;
+
+  color:
+    var(--gold-light);
+}
+
+
+.product-description {
+
+  min-height:
+    60px;
+
+  color:
+    #ad9874;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.6;
+}
+
+
+.product-footer {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    10px;
+
+  margin-top:
+    18px;
+}
+
+
+.price {
+
+  color:
+    #e1bb5d;
+
+  font-family:
+    "Cinzel";
+
+  font-size:
+    18px;
+
+  font-weight:
+    bold;
+}
+
+
+.stock {
+
+  color:
+    #9f8c6e;
+
+  font-size:
+    11px;
+}
+
+
+.buy-btn {
+
+  width:
+    100%;
+
+  margin-top:
+    15px;
+
+  padding:
+    11px;
+
+  color:
+    #2a1b0f;
+
+  background:
+    linear-gradient(
+      #d8b55d,
+      #9b712c
+    );
+
+  border:
+    1px solid #70501d;
+
+  font-weight:
+    bold;
+}
+
+
+.buy-btn:hover {
+
+  filter:
+    brightness(1.12);
+}
+
+
+.buy-btn:disabled {
+
+  opacity:
+    .4;
+
+  cursor:
+    not-allowed;
+}
+
+
+/* =====================================================
+   INVENTÁRIO
+   ===================================================== */
+
+.inventory-grid {
+
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(230px, 1fr)
+    );
+
+  gap:
+    20px;
+}
+
+
+.inventory-card {
+
+  padding:
+    20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #382317,
+      #1c110b
+    );
+
+  border:
+    2px solid #604124;
+}
+
+
+.inventory-icon {
+
+  font-size:
+    45px;
+
+  margin-bottom:
+    15px;
+}
+
+
+.inventory-card h3 {
+
+  font-size:
+    17px;
+}
+
+
+.inventory-quantity {
+
+  display:
+    inline-block;
+
+  margin-top:
+    12px;
+
+  padding:
+    5px 10px;
+
+  background:
+    #8d6b30;
+
+  color:
+    #fff0c5;
+}
+
+
+/* =====================================================
+   ADMIN
+   ===================================================== */
+
+.admin-section {
+
+  margin-bottom:
+    40px;
+
+  padding:
+    25px;
+
+  background:
+    rgba(30,18,10,.75);
+
+  border:
+    1px solid #624527;
+}
+
+
+.admin-section h3 {
+
+  margin-bottom:
+    20px;
+
+  font-size:
+    22px;
+}
+
+
+.players-grid {
+
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(280px, 1fr)
+    );
+
+  gap:
+    15px;
+}
+
+
+.player-card {
+
+  padding:
+    20px;
+
+  background:
+    #2c1b11;
+
+  border:
+    1px solid #6b4a29;
+}
+
+
+.player-card h4 {
+
+  color:
+    var(--gold-light);
+
+  font-size:
+    18px;
+}
+
+
+.player-balance {
+
+  margin:
+    10px 0;
+
+  color:
+    #e4c477;
+}
+
+
+.admin-actions {
+
+  display:
+    flex;
+
+  gap:
+    7px;
+
+  flex-wrap:
+    wrap;
+}
+
+
+.admin-actions button {
+
+  padding:
+    7px 10px;
+
+  color:
+    #e9d6ae;
+
+  background:
+    #56351d;
+
+  border:
+    1px solid #7b582f;
+}
+
+
+.admin-actions button:hover {
+
+  background:
+    #74502a;
+}
+
+
+/* =====================================================
+   TABELA
+   ===================================================== */
+
+.admin-table-container {
+
+  overflow-x:
+    auto;
+}
+
+
+table {
+
+  width:
+    100%;
+
+  border-collapse:
+    collapse;
+}
+
+
+th {
+
+  padding:
+    12px;
+
+  text-align:
+    left;
+
+  color:
+    var(--gold-light);
+
+  background:
+    #3b2516;
+}
+
+
+td {
+
+  padding:
+    12px;
+
+  border-bottom:
+    1px solid #4b321d;
+
+  color:
+    #c7b38e;
+}
+
+
+tr:hover td {
+
+  background:
+    rgba(255,255,255,.03);
+}
+
+
+/* =====================================================
+   MODAL
+   ===================================================== */
+
+.modal {
+
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  z-index:
+    1000;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    20px;
+
+  background:
+    rgba(0,0,0,.78);
+}
+
+
+.modal.hidden {
+
+  display:
+    none;
+}
+
+
+.modal-content {
+
+  width:
+    100%;
+
+  max-width:
+    500px;
+
+  padding:
+    35px;
+
+  position:
+    relative;
+}
+
+
+.modal-close {
+
+  position:
+    absolute;
+
+  top:
+    10px;
+
+  right:
+    15px;
+
+  background:
+    transparent;
+
+  color:
+    #4a2c16;
+
+  font-size:
+    30px;
+}
+
+
+.modal-content h2 {
+
+  color:
+    #4a2c16;
+
+  margin-bottom:
+    20px;
+}
+
+
+/* =====================================================
+   MENSAGENS
+   ===================================================== */
+
+.message {
+
+  margin-top:
+    15px;
+
+  padding:
+    10px;
+
+  font-size:
+    13px;
+
+  display:
+    none;
+}
+
+
+.message.error {
+
+  display:
+    block;
+
+  background:
+    #5d1715;
+
+  color:
+    #ffd7cf;
+}
+
+
+.message.success {
+
+  display:
+    block;
+
+  background:
+    #385936;
+
+  color:
+    #d8f0c8;
+}
+
+
+.loading {
+
+  grid-column:
+    1 / -1;
+
+  text-align:
+    center;
+
+  padding:
+    50px;
+
+  color:
+    #a99572;
+}
+
+
+/* =====================================================
+   RESPONSIVIDADE
+   ===================================================== */
+
+@media(max-width: 750px) {
+
+  .topbar {
+
+    flex-direction:
+      column;
+
+    align-items:
+      flex-start;
+  }
+
+
+  .player-area {
+
+    width:
+      100%;
+
+    justify-content:
+      space-between;
+  }
+
+
+  .navigation {
+
+    overflow-x:
+      auto;
+  }
+
+
+  .page {
+
+    padding:
+      25px 15px;
+  }
+
+
+  .page-title h2 {
+
+    font-size:
+      27px;
+  }
+
+
+  .products-grid {
+
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .login-container h1 {
+
+    font-size:
+      29px;
+  }
+
+}
+
+</style>
